@@ -68,6 +68,11 @@ describe('URI', function() {
     }).should.throw(TypeError);
   });
 
+  it('do not need new keyword', function() {
+    var uri = URI('bitcoin:1DP69gMMvSuYhbnxsi4EJEFufUAbDrEQfj');
+    uri.should.be.instanceof(URI);
+  });
+
   describe('instantiation from bitcoin uri', function() {
     /* jshint maxstatements: 25 */
     var uri;
@@ -178,7 +183,7 @@ describe('URI', function() {
       label: 'myLabel',
       other: 'xD'
     });
-    URI.fromJSON(json).toJSON().should.deep.equal(json);
+    JSON.stringify(URI.fromObject(JSON.parse(json))).should.equal(json);
   });
 
   it('should support numeric amounts', function() {

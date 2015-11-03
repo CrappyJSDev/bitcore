@@ -8,6 +8,7 @@ var Point = bitcore.crypto.Point;
 var BN = bitcore.crypto.BN;
 var PublicKey = bitcore.PublicKey;
 var PrivateKey = bitcore.PrivateKey;
+var Address = bitcore.Address;
 var Networks = bitcore.Networks;
 
 /* jshint maxlen: 200 */
@@ -48,7 +49,7 @@ describe('PublicKey', function() {
     it('from a private key', function() {
       var privhex = '906977a061af29276e40bf377042ffbde414e496ae2260bbf1fa9d085637bfff';
       var pubhex = '02a1633cafcc01ebfb6d78e39f687a1f0995c62fc95f51ead10a02ee0be551b5dc';
-      var privkey = new PrivateKey(BN(new Buffer(privhex, 'hex')));
+      var privkey = new PrivateKey(new BN(new Buffer(privhex, 'hex')));
       var pk = new PublicKey(privkey);
       pk.toString().should.equal(pubhex);
     });
@@ -168,7 +169,7 @@ describe('PublicKey', function() {
     });
   });
 
-  describe('#json', function() {
+  describe('#json/object', function() {
 
     it('should input/ouput json', function() {
       var json = JSON.stringify({
@@ -176,21 +177,28 @@ describe('PublicKey', function() {
         y: '7baad41d04514751e6851f5304fd243751703bed21b914f6be218c0fa354a341',
         compressed: false
       });
-      PublicKey.fromJSON(json).toJSON().should.deep.equal(json);
+      var pubkey = new PublicKey(JSON.parse(json));
+      JSON.stringify(pubkey).should.deep.equal(json);
     });
 
     it('fails if "y" is not provided', function() {
       expect(function() {
-        return PublicKey.fromJSON('{"x": "1ff0fe0f7b15ffaa85ff9f4744d539139c252a49710fb053bb9f2b933173ff9a"}');
+        return new PublicKey({
+          x: '1ff0fe0f7b15ffaa85ff9f4744d539139c252a49710fb053bb9f2b933173ff9a'
+        });
       }).to.throw();
-      // coverage
-      PublicKey._isJSON({x: '1ff0fe0f7b15ffaa85ff9f4744d539139c252a49710fb053bb9f2b933173ff9a'}).should.equal(false);
     });
 
     it('fails if invalid JSON is provided', function() {
       expect(function() {
         return PublicKey._transformJSON('¹');
       }).to.throw();
+    });
+
+    it('works for X starting with 0x00', function() {
+      var a = new PublicKey('030589ee559348bd6a7325994f9c8eff12bd5d73cc683142bd0dd1a17abc99b0dc');
+      var b = new PublicKey('03'+a.toObject().x);
+      b.toString().should.equal(a.toString());
     });
 
   });
@@ -338,6 +346,25 @@ describe('PublicKey', function() {
       address.toString().should.equal('mtX8nPZZdJ8d3QNLRJ1oJTiEi26Sj6LQXS');
     });
 
+  });
+
+  describe('hashes', function() {
+
+    // wif private key, address
+    // see: https://github.com/bitcoin/bitcoin/blob/master/src/test/key_tests.cpp#L20
+    var data = [
+      ['5HxWvvfubhXpYYpS3tJkw6fq9jE9j18THftkZjHHfmFiWtmAbrj', '1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ'],
+      ['5KC4ejrDjv152FGwP386VD1i2NYc5KkfSMyv1nGy1VGDxGHqVY3', '1F5y5E5FMc5YzdJtB9hLaUe43GDxEKXENJ'],
+      ['Kwr371tjA9u2rFSMZjTNun2PXXP3WPZu2afRHTcta6KxEUdm1vEw', '1NoJrossxPBKfCHuJXT4HadJrXRE9Fxiqs'],
+      ['L3Hq7a8FEQwJkW1M2GNKDW28546Vp5miewcCzSqUD9kCAXrJdS3g', '1CRj2HyM1CXWzHAXLQtiGLyggNT9WQqsDs']
+    ];
+    
+    data.forEach(function(d){
+      var publicKey = PrivateKey.fromWIF(d[0]).toPublicKey();
+      var address = Address.fromString(d[1]);
+      address.hashBuffer.should.deep.equal(publicKey._getID());
+    });
+    
   });
 
   describe('#toString', function() {
