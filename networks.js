@@ -6,31 +6,26 @@ var hex = function(hex) {
 
 exports.livenet = {
   name: 'livenet',
-  magic: hex('f9beb4d9'),
-  addressVersion: 0x00,
+  magic: hex('fdc0a5f1'),
+  addressVersion: 0x23,
   privKeyVersion: 128,
-  P2SHVersion: 5,
+  P2SHVersion: 8,
   hkeyPublicVersion: 0x0488b21e,
   hkeyPrivateVersion: 0x0488ade4,
   genesisBlock: {
-    hash: hex('6FE28C0AB6F1B372C1A6A246AE63F74F931E8365E15A089C68D6190000000000'),
-    merkle_root: hex('3BA3EDFD7A7B12B27AC72C3E67768F617FC81BC3888A51323A9FB8AA4B1E5E4A'),
+    hash: hex('ea1c3eff7c4b2767ba561cddfcecd741905cea385dc378e20807f99d1c78c709'),
+    merkle_root: hex('00232baba7291c9d844bb24867aafe453ea7e290685612552d595adc8d0c0f73'),
     height: 0,
-    nonce: 2083236893,
+    nonce: 1000112548,
     version: 1,
     prev_hash: buffertools.fill(new Buffer(32), 0),
-    timestamp: 1231006505,
+    timestamp: 1371488396,
     bits: 486604799,
   },
   dnsSeeds: [
-    'seed.bitcoin.sipa.be',
-    'dnsseed.bluematt.me',
-    'dnsseed.bitcoin.dashjr.org',
-    'seed.bitcoinstats.com',
-    'seed.bitnodes.io',
-    'bitseed.xf2.org'
+    'florincoin.zapto.org'
   ],
-  defaultClientPort: 8333
+  defaultClientPort: 7312
 };
 
 exports.mainnet = exports.livenet;
